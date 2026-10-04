@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NOVA Mining</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #07111f;
+      color: white;
+      text-align: center;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #9fb3c8;
+    }
+
+    .points {
+      font-size: 42px;
+      font-weight: bold;
+      margin: 35px 0 10px;
+    }
+
+    .label {
+      color: #9fb3c8;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      margin-top: 30px;
+      border: none;
+      border-radius: 15px;
+      background: #1683ff;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      background: #44515f;
+    }
+
+    .status {
+      margin-top: 20px;
+      color: #9fb3c8;
+      font-size: 14px;
+    }
+
+    .note {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #718096;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <h1>🚀 NOVA Mining</h1>
+
+    <div class="subtitle">
+      Mine Points • Build Community
+    </div>
+
+    <div class="points" id="points">0</div>
+    <div class="label">NOVA Points</div>
+
+    <button id="mineButton" onclick="startMining()">
+      ⛏️ Start Mining
+    </button>
+
+    <div class="status" id="status">
+      Ready to mine
+    </div>
+
+    <div class="note">
+      Demo points only. No monetary value.
+    </div>
+
+  </div>
+
+<script>
+
+  const tg = window.Telegram?.WebApp;
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  const REWARD = 100;
+  const WAIT_TIME = 24 * 60 * 60 * 1000;
+
+  let points = Number(localStorage.getItem("novaPoints")) || 0;
+  let lastMine = Number(localStorage.getItem("novaLastMine")) || 0;
+
+  const pointsElement = document.getElementById("points");
+  const button = document.getElementById("mineButton");
+  const status = document.getElementById("status");
+
+  function updateScreen() {
+
+    pointsElement.textContent = points;
+
+    const now = Date.now();
+
+    if (now - lastMine >= WAIT_TIME) {
+
+      button.disabled = false;
+      button.textContent = "⛏️ Start Mining";
+      status.textContent = "Ready to mine";
+
+    } else {
+
+      button.disabled = true;
+      button.textContent = "⏳ Mining Cooldown";
+
+      const remaining = WAIT_TIME - (now - lastMine);
+
+      const hours = Math.floor(remaining / 3600000);
+      const minutes = Math.floor(
+        (remaining % 3600000) / 60000
+      );
+
+      status.textContent =
+        `Next mining in ${hours}h ${minutes}m`;
+    }
+  }
+
+  function startMining() {
+
+    const now = Date.now();
+
+    if (now - lastMine < WAIT_TIME) {
+      updateScreen();
+      return;
+    }
+
+    points += REWARD;
+    lastMine = now;
+
+    localStorage.setItem("novaPoints", points);
+    localStorage.setItem("novaLastMine", lastMine);
+
+    updateScreen();
+  }
+
+  updateScreen();
+
+</script>
+
+</body>
+</html>
